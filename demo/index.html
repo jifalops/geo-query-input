@@ -142,8 +142,8 @@
               var scope = document.getElementById('scope3');
               // one decimal place ~= 11.1 km
               // two decimal places ~= 1.1 km
-              var lat = Math.round(scope.lat * 10) / 10;
-              var lng =  Math.round(scope.lng * 10) / 10;
+              var lat = Math.round(scope.userLat * 10) / 10;
+              var lng =  Math.round(scope.userLng * 10) / 10;
 
               var key = ('user_' + lat + '_' + lng).replace(/\./g, ',');
               var geo = document.getElementById('query')._geofire;
