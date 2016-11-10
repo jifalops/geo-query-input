@@ -25,7 +25,9 @@
     "web-component-tester": "^4.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
     "geo-codec": "^0.3.2",
-    "geo-location": "^1.0.6"
+    "geo-location": "^1.0.6",
+    "google-map": "^1.1.14",
+    "geofire-elements": "^0.1.1"
   },
   "license": "MIT"
 }
