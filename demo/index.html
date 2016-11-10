@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <title>geo-query-input demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../geo-location/geo-location.html">
+    <link rel="import" href="../../geo-codec/geo-codec.html">
+
+    <link rel="import" href="../geo-query-input.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+
+    <div class="vertical-section-container centered">
+      <h3>Basic geo-query-input Demo</h3>
+      <demo-snippet>
+        <template is="dom-bind" id="scope">
+          <geo-query-input on-query-changed="queryChanged"></geo-query-input>
+          <script>
+            var scope = document.getElementById('scope');
+            scope.queryChanged = function(e, data) {
+              console.log('Query changed', data);
+            }
+          </script>
+        </template>
+      </demo-snippet>
+
+      <h3>With user location and geocoding</h3>
+      <demo-snippet>
+        <template is="dom-bind" id="scope2">
+          <geo-query-input on-query-changed="queryChanged"></geo-query-input>
+          <geo-location id="userLocation" idle on-geo-response="geoResponse"></geo-location>
+          <geo-codec id="codec" api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"></geo-codec>
+          <script>
+            var scope = document.getElementById('scope2');
+            scope.queryChanged = function(e, data) {
+              console.log('Query changed', data);
+              scope.radiusKm = data.radiusKm;
+              if (data.useCurrentLocation) {
+                var el = document.getElementById('userLocation');
+                if (el.hasAttribute('idle')) el.removeAttribute('idle');
+                else logLocation(el.latitude, el.longitude);
+              } else {
+                var el = document.getElementById('codec');
+                el.geocode(data.location, function (address, lat, lng, place) {
+                  logLocation(lat, lng, address);
+                });
+              }
+            };
+
+            scope.geoResponse = function(e, data) {
+              logLocation(data.latitude, data.longitude);
+            }
+
+            function logLocation(lat, lng, location) {
+              if (location) console.log("Geocoded result ready for", location);
+              else console.log("Using user's location.");
+              console.log('center: [' + lat + ',' + lng + ']');
+              console.log('radiusKm:', scope.radiusKm);
+            }
+          </script>
+        </template>
+      </demo-snippet>
+    </div>
+
+  </body>
+</html>
