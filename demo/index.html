@@ -49,10 +49,10 @@
           <geo-location id="userLocation" idle on-geo-response="geoResponse"></geo-location>
           <geo-codec id="codec" api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"></geo-codec>
           <script>
-            var scope = document.getElementById('scope2');
-            scope.queryChanged = function(e, data) {
+            var scope2 = document.getElementById('scope2');
+            scope2.queryChanged = function(e, data) {
               console.log('Query changed', data);
-              scope.radiusKm = data.radiusKm;
+              scope2.radiusKm = data.radiusKm;
               if (data.useCurrentLocation) {
                 var el = document.getElementById('userLocation');
                 if (el.hasAttribute('idle')) el.removeAttribute('idle');
@@ -65,7 +65,7 @@
               }
             };
 
-            scope.geoResponse = function(e, data) {
+            scope2.geoResponse = function(e, data) {
               logLocation(data.latitude, data.longitude);
             }
 
@@ -73,7 +73,7 @@
               if (location) console.log("Geocoded result ready for", location);
               else console.log("Using user's location.");
               console.log('center: [' + lat + ',' + lng + ']');
-              console.log('radiusKm:', scope.radiusKm);
+              console.log('radiusKm:', scope2.radiusKm);
             }
           </script>
         </template>
@@ -83,8 +83,14 @@
       <demo-snippet>
         <template is="dom-bind" id="scope3">
           <geo-location latitude="{{userLat}}" longitude="{{userLng}}"></geo-location>
-          <geo-query-input radius-options=[[radii]] radius="999" on-query-changed="queryChanged"></geo-query-input>
           <geo-codec id="codec" api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"></geo-codec>
+
+          <geo-query-input
+            location="usa"
+            radius-options="[[radii]]"
+            radius="999"
+            unit="{{unit}}"
+            on-query-changed="queryChanged"></geo-query-input>
 
           <geofire-query
             id="query"
@@ -102,7 +108,7 @@
               longitude="[[lng]]"
               api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"
               style="height:300px"
-              fit-to-marker
+              zoom="[[_radiusToZoom(radiusKm)]]"
               disable-street-view-control>
               <google-map-marker
                 latitude="[[lat]]"
@@ -118,32 +124,32 @@
             </google-map>
 
           <script>
-            var scope = document.getElementById('scope3');
-            scope.radii = [100, 250, 500, 999];
+            var scope3 = document.getElementById('scope3');
+            scope3.radii = [100, 250, 500, 999];
 
-            scope.queryChanged = function(e, data) {
+            scope3.queryChanged = function(e, data) {
               console.log('Query changed', data);
-              scope.radiusKm = data.radiusKm;
+              scope3.radiusKm = data.radiusKm;
               if (data.useCurrentLocation) {
-                scope.lat = scope.userLat;
-                scope.lng = scope.userLng;
+                scope3.lat = scope3.userLat;
+                scope3.lng = scope3.userLng;
               } else {
                 var el = document.getElementById('codec');
                 console.log('geocoding', data.location);
                 el.geocode(data.location, function (address, lat, lng, place) {
                   console.log(address, lat, lng);
-                  scope.lat = lat;
-                  scope.lng = lng;
+                  scope3.lat = lat;
+                  scope3.lng = lng;
                 });
               }
             };
 
             function addMe() {
-              var scope = document.getElementById('scope3');
+              var scope3 = document.getElementById('scope3');
               // one decimal place ~= 11.1 km
               // two decimal places ~= 1.1 km
-              var lat = Math.round(scope.userLat * 10) / 10;
-              var lng =  Math.round(scope.userLng * 10) / 10;
+              var lat = Math.round(scope3.userLat * 10) / 10;
+              var lng =  Math.round(scope3.userLng * 10) / 10;
 
               var key = ('user_' + lat + '_' + lng).replace(/\./g, ',');
               var geo = document.getElementById('query')._geofire;
@@ -153,6 +159,15 @@
                   console.log('Write failed', error);
                 });
             }
+            /**
+             * Convert miles to a google map's zoom, based on a zoom of 14 ~= 1 mile.
+             */
+            scope3.radiusToZoom = function(radiusKm) {
+              radius = radiusKm / 1.60934;
+              var zoom = Math.round(14 - Math.log(radius) / Math.LN2);
+              // console.log('zoom', zoom);
+              return zoom;
+            },
           </script>
         </template>
       </demo-snippet>

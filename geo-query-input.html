@@ -1,10 +1,12 @@
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../paper-styles/typography.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+
 <!--
 `geo-query-input`
 A Polymer element for specifying latitude, longitude, and search radius for geographical queries.
@@ -17,167 +19,249 @@ A Polymer element for specifying latitude, longitude, and search radius for geog
     <style>
       :host {
         display: block;
+        --font-small: {
+          @apply --paper-font-common-base;
+          font-size: 12px;
+          font-weight: 400;
+          line-height: 16px;
+        };
+        --font-tiny: {
+          @apply --paper-font-common-base;
+          font-size: 10px;
+          font-weight: 300;
+          line-height: 14px;
+        };
+
+        @apply --font-small;
       }
-      .container {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-        @apply(--layout-wrap);
-      }
-      .location-section {
-        @apply(--layout-vertical);
-        margin-left: 16px;
-        margin-bottom: 1.8em;
+      :host > div > div {
+        margin: 0 4px;
       }
       paper-dropdown-menu {
-        width: 3.7em;
-        margin: 0 6px 2em;
+        max-width: 4em;
+        --paper-dropdown-menu-input: {
+          /*FIXME if this line is removed, setting the font size has no effect*/
+          --paper-input-container: {
+            /*FIXME if this line is removed, changing the icon size has no effect*/
+            --iron-icon: {};
+            --iron-icon-width: 16px;
+            --iron-icon-height: 16px;
+          };
+          --paper-input-container-input: {
+            @apply --font-small;
+            text-align: right;
+          };
+        };
+      }
+      .radius-menu {
+        margin: 0 4px;
+      }
+      .unit-menu {
+        width: 3em;
+        margin-right: 4px;
+      }
+      paper-item {
+        --paper-item: {
+          @apply --font-small;
+        };
       }
       paper-input {
         margin-bottom: 8px;
-        width: 9em;
+        width: 6em;
+        --paper-input-container-label: {
+          @apply --font-small;
+          padding: 0;
+          margin: 0;
+        };
+        /*FIXME causes exceptions on 2.0-preview */
+        --paper-input-container-input: {
+          @apply --font-small;
+        };
+        --paper-input-container: {
+          padding: 0;
+          margin: 0;
+        }
+      }
+      paper-checkbox {
+        --paper-checkbox-size: 14px;
+        --paper-checkbox-label-spacing: 4px;
+      }
+      .or {
+        @apply --font-tiny;
+        margin: 0 4px;
+        font-style: italic;
+      }
+      .container {
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        /*@apply --layout-wrap;*/
+      }
+      .center-point {
+        @apply --layout-horizontal;
+        @apply --layout-center;
       }
     </style>
 
-    <div class="container">
-
-        <span>Within</span>
-
-        <paper-dropdown-menu no-animations noink>
+    <div class=".container">
+      <div>
+        <!-- FIXME if these viewless elements are top-level, there is no space between "of" and the paper-input.         -->
+        <app-localstorage-document key="radius" data="{{radius}}">
+        <app-localstorage-document key="unit" data="{{unit}}">
+        <app-localstorage-document key="location" data="{{location}}">
+        <app-localstorage-document key="useCurrentLocation" data="{{useCurrentLocation}}">
+        Within
+        <paper-dropdown-menu class="radius-menu" no-animations noink no-label-float>
           <paper-listbox
             class="dropdown-content"
             attr-for-selected="value"
             selected="{{radius}}">
+            <!-- <dom-repeat items="[[radiusOptions]]"> -->
             <template is="dom-repeat" items="[[radiusOptions]]">
               <paper-item value="[[item]]">[[item]]</paper-item>
             </template>
+            <!-- </dom-repeat> -->
           </paper-listbox>
         </paper-dropdown-menu>
-
-        <span>[[_getDistanceUnit(metric)]] of</span>
-
-      <div class="location-section">
+        <paper-dropdown-menu class="unit-menu" no-animations noink no-label-float>
+          <paper-listbox
+            class="dropdown-content"
+            attr-for-selected="value"
+            selected="{{unit}}">
+            <paper-item value="km">km</paper-item>
+            <paper-item value="mi">mi</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+        of
+      </div>
+      <div class="center-point">
         <paper-input
           id="locationInput"
           value="{{location}}"
           label="[[inputLabel]]"
           auto-validate
+          always-float-label
+          focused="{{locationInputFocused}}"
           minlength="3"
-          error-message="[[errorMsg]]"></paper-input>
-
-        <paper-checkbox noink checked="{{useCurrentLocation}}">my location</paper-checkbox>
+          error-message="[[errorMsg]]">
+        </paper-input>
+        <span class="or">or</span>
+        <paper-checkbox noink checked="{{useCurrentLocation}}" on-change="_blurCheckbox">me</paper-checkbox>
       </div>
-
     </div>
   </template>
 
   <script>
-    Polymer({
-
-      is: 'geo-query-input',
-
-      properties: {
-        /**
-         * Whether to use miles or kilometers. Defaults to miles.
-         */
-        metric: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
-
-        /**
-         * The label for the location input.
-         */
-        inputLabel: {
-          type: String,
-          value: 'Zip or description'
-        },
-
-        /**
-         * The error message for the location input.
-         */
-        errorMsg: {
-          type: String,
-          value: 'At least 3 characters'
-        },
-
-        /**
-         * The value of the location input.
-         */
-        location: {
-            type: String,
-            notify: true,
-            observer: '_locationChanged'
-        },
-
-        /**
-         * Whether to use the user's current location as opposed to the location input field.
-         */
-        useCurrentLocation: {
-            type: Boolean,
-            value: false,
-            reflectToAttribute: true,
-            notify: true,
-        },
-
-        /**
-         * The distance to search from [lat, lng], in miles or kilometers depending
-         * on the `metric` property.
-         */
-        radius: {
-            type: Number,
-            value: 50,
-            notify: true
-        },
-
-        /**
-         * The values for the radius dropdown chooser.
-         */
-        radiusOptions: {
-            type: Array,
-            value: [5, 10, 25, 50, 100, 200]
-        },
-
-        _kmPerMile: {
-          type: Number,
-          value: 1.60934,
-          readOnly: true
-        }
+  Polymer({
+    is: 'geo-query-input',
+    properties: {
+      /**
+       * Whether to use miles or kilometers ('mi' or 'km'). Defaults to miles.
+       */
+      unit: {
+        type: String,
+        value: 'mi',
+        notify: true
       },
-
-      observers: [
-        '_queryChanged(metric, radius, location, useCurrentLocation)'
-      ],
-
-      _locationChanged: function(loc, oldLoc) {
-        if (loc || oldLoc) {
-          this.useCurrentLocation = false;
-        }
-      },
-
-      _getDistanceUnit: function(metric) {
-          return metric ? 'km' : 'miles';
-      },
-
-      _queryChanged: function(metric, radius, location, useCurrentLocation) {
-        if (radius && (useCurrentLocation || (location && this.$.locationInput.validate()))) {
-          this.debounce('queryChanged', function() {
-            this.fire('query-changed', {
-              radiusKm: metric ? radius : radius * this._kmPerMile,
-              location: location,
-              useCurrentLocation: useCurrentLocation
-            });
-          }, 1000);
-        }
-      }
 
       /**
-       * Triggered when a user taps the submit button.
-       * @event query-changed
-       * @param {useCurrentLocation} boolean Whether the user's current location should be used.
-       * @param {location} string The string to geocode if not using the user's current location.
-       * @param {radiusKm} number The radius in kilometers to search from the center point.
+       * The label for the location input.
        */
-    });
+      inputLabel: {
+        type: String,
+        value: 'Zip or description'
+      },
+
+      /**
+       * The error message for the location input.
+       */
+      errorMsg: {
+        type: String,
+        value: 'At least 3 characters'
+      },
+
+      /**
+       * The value of the location input.
+       */
+      location: {
+          type: String,
+          notify: true,
+          observer: '_locationChanged'
+      },
+
+      /**
+       * Whether to use the user's current location as opposed to the location input field.
+       */
+      useCurrentLocation: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          notify: true,
+      },
+
+      /**
+       * The distance to search from [lat, lng], in miles or kilometers depending
+       * on the `unit` property.
+       */
+      radius: {
+          type: Number,
+          value: 50,
+          notify: true
+      },
+
+      /**
+       * The values for the radius dropdown chooser.
+       */
+      radiusOptions: {
+          type: Array,
+          value: [10, 25, 50, 100, 200]
+      }
+    },
+    observers: [
+      '_queryChanged(unit, radius, location, useCurrentLocation)',
+      '_locationInputFocusChanged(locationInputFocused)'
+    ],
+
+    created: function() {
+      // this.debouncer = new Polymer.Debouncer(this);
+    },
+
+    _locationChanged: function(loc, oldLoc) {
+      if (loc || oldLoc) {
+        this.useCurrentLocation = false;
+      }
+    },
+
+    _locationInputFocusChanged: function(focused) {
+      if (focused) {
+        this.$.locationInput.$.input.select();
+      }
+    },
+
+    _queryChanged: function(unit, radius, location, useCurrentLocation) {
+      if (radius && (useCurrentLocation || (location && this.$.locationInput.validate()))) {
+        this.debounce('query-changed', function() {
+          this.fire('query-changed', {
+            radiusKm: unit == 'km' ? radius : (radius * 1.60934),
+            location: location,
+            useCurrentLocation: useCurrentLocation
+          });
+          this.$.locationInput.blur();
+        }.bind(this), 1000, this);
+      }
+    },
+
+    _blurCheckbox: function(e) {
+      var el = e.srcElement || e.target;
+      el.blur();
+    }
+
+    /**
+     * Triggered when a user taps the submit button.
+     * @event query-changed
+     * @param {useCurrentLocation} boolean Whether the user's current location should be used.
+     * @param {location} string The string to geocode if not using the user's current location.
+     * @param {radiusKm} number The radius in kilometers to search from the center point.
+     */
+  });
   </script>
 </dom-module>
