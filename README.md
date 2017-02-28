@@ -10,8 +10,8 @@ bower install --save geo-query-input
 ```
 
 ## Usage
-Listen for the `query-changed` event and handle changes. See the full demo
-for an example which uses a submit button instead of the query-changed event.
+* Listen for the `query-changed` event and handle changes.
+* Optionally use a submit button instead of the query-changed event (see full demo).
 
 ## Demo
 <!--
