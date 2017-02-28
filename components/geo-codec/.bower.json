@@ -1,0 +1,43 @@
+{
+  "name": "geo-codec",
+  "description": "Easily do geocoding and reverse geocoding with the Google maps API.",
+  "main": "geo-codec.html",
+  "keywords": [
+    "web-components",
+    "geocode",
+    "geocoder",
+    "google",
+    "coordinates",
+    "latitude",
+    "longitude",
+    "lat",
+    "lng",
+    "maps",
+    "geocoding",
+    "codec",
+    "geo",
+    "location"
+  ],
+  "dependencies": {
+    "polymer": "^1.8.1",
+    "google-apis": "^1.1.7"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/jifalops/geo-codec",
+  "version": "0.3.4",
+  "_release": "0.3.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.3.4",
+    "commit": "b361c8768c7edfd39003e1d30980640dfd78a119"
+  },
+  "_source": "https://github.com/jifalops/geo-codec.git",
+  "_target": "^0.3.2",
+  "_originalSource": "geo-codec"
+}
