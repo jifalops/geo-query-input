@@ -1,7 +1,7 @@
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/jifalops/geo-query-input)
 
 # geo-query-input
-Specify a center point and search radius for geographical queries.
+Specify the center point and search radius for geographical queries.
 
 ## Installation
 

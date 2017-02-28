@@ -1,6 +1,6 @@
 {
   "name": "geo-query-input",
-  "description": "A Polymer element for specifying latitude, longitude, and search radius for geographical queries. ",
+  "description": "Specify the center point and search radius for geographical queries.",
   "main": "geo-query-input.html",
   "keywords": [
     "web-components",

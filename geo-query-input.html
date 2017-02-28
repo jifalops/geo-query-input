@@ -9,20 +9,21 @@
 
 <!--
 `geo-query-input`
-A Polymer element for specifying latitude, longitude, and search radius for geographical queries.
+Specify the center point and search radius for geographical queries.
 
-**Styles**
-`--gqi-container` Mixin applied to the container.
-`--gqi-radius-dropdown-width` The width of the radius dropdown.
-`--gqi-unit-dropdown-width` The width of the radius-unit dropdown.
-`--gqi-dropdown-icon-size` The height and width of the dropdown menu icons.
-`--gqi-search-input-width` The width of the search input field.
-`--gqi-font` Mixin applied to several elements' font.
-`--gqi-font-small` Mixin applied the the font of the "or" span.
-`--gqi-checkbox-size` The height and width of the checkbox.
-`--gqi-checkbox-label-spacing` Space between the checkbox and its label.
-`--gqi-spacing` The space between each element, except the two dropdowns.
-`--gqi-dropdown-spacing` The space between the radius and unit dropdowns.
+Custom property | Description | Default
+----------------|-------------|----------
+`--gqi-container` | Mixin applied to the container.
+`--gqi-radius-dropdown-width` | The width of the radius dropdown. | 4em
+`--gqi-unit-dropdown-width` | The width of the radius-unit dropdown. | 3em
+`--gqi-dropdown-icon-size` | The height and width of the dropdown menu icons. | 16px
+`--gqi-search-input-width` | The width of the search input field. | 6em
+`--gqi-font` | Mixin applied to several elements' font.
+`--gqi-font-small` | Mixin applied the the font of the "or" span.
+`--gqi-checkbox-size` | The height and width of the checkbox. | 14px
+`--gqi-checkbox-label-spacing` | Space between the checkbox and its label. | 4px
+`--gqi-spacing` | The space between each element, except the two dropdowns. | 6px
+`--gqi-dropdown-spacing` | The space between the radius and unit dropdowns. | 2px
 
 @demo demo/index.html
 -->
@@ -314,6 +315,9 @@ A Polymer element for specifying latitude, longitude, and search radius for geog
       }
     },
 
+    /**
+     * Return the current state of the inputs.
+     */
     getCurrentQuery: function() {
       return {
         radiusKm: this.unit == 'km' ? this.radius : (this.radius * 1.60934),
