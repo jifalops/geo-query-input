@@ -8,166 +8,130 @@
 
     <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
     <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-    <link rel="import" href="../../geo-location/geo-location.html">
-    <link rel="import" href="../../geo-codec/geo-codec.html">
-    <link rel="import" href="../../geofire-elements/geofire-query.html">
-    <link rel="import" href="../../google-map/google-map.html">
-    <link rel="import" href="../../google-map/google-map-marker.html">
 
     <link rel="import" href="../geo-query-input.html">
 
     <style is="custom-style" include="demo-pages-shared-styles">
     </style>
-    <script>
-      firebase.initializeApp({
-        apiKey: "AIzaSyD0irm8Cxx8qq1Dg7n07COfbA11_0gUsUc",
-        authDomain: "geo-fire-demo-b0bdf.firebaseapp.com",
-        databaseURL: "https://geo-fire-demo-b0bdf.firebaseio.com"
-      }, 'demo');
-    </script>
   </head>
   <body>
 
     <div class="vertical-section-container centered">
-      <h3>Basic geo-query-input Demo</h3>
+      <div>
+        Note mutliple instances in the same page share the same local-storage location
+        until <a href="https://github.com/PolymerElements/app-storage/pull/76">this pull request</a>
+        gets accepted.
+      </div>
+
+      <h3>Basic use</h3>
       <demo-snippet>
         <template is="dom-bind" id="scope">
           <geo-query-input on-query-changed="queryChanged"></geo-query-input>
+          <div id="query"></div>
           <script>
             var scope = document.getElementById('scope');
             scope.queryChanged = function(e, data) {
-              console.log('Query changed', data);
+              scope.$.query.innerHTML = 'Query:'
+                + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                + '<br>search: ' + data.search
+                + '<br>radiusKm: ' + data.radiusKm;
             }
           </script>
         </template>
       </demo-snippet>
 
-      <h3>With user location and geocoding</h3>
+      <h3>Using the `submit-button` slot</h3>
       <demo-snippet>
         <template is="dom-bind" id="scope2">
-          <geo-query-input on-query-changed="queryChanged"></geo-query-input>
-          <geo-location id="userLocation" idle on-geo-response="geoResponse"></geo-location>
-          <geo-codec id="codec" api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"></geo-codec>
+          <geo-query-input id="input2">
+            <div slot="submit-button">
+              <button on-tap="getQuery" style="margin-left:8px">Submit</button>
+            </div>
+          </geo-query-input>
+          <div id="query2"></div>
           <script>
             var scope2 = document.getElementById('scope2');
-            scope2.queryChanged = function(e, data) {
-              console.log('Query changed', data);
-              scope2.radiusKm = data.radiusKm;
-              if (data.useCurrentLocation) {
-                var el = document.getElementById('userLocation');
-                if (el.hasAttribute('idle')) el.removeAttribute('idle');
-                else logLocation(el.latitude, el.longitude);
-              } else {
-                var el = document.getElementById('codec');
-                el.geocode(data.location, function (address, lat, lng, place) {
-                  logLocation(lat, lng, address);
-                });
-              }
-            };
-
-            scope2.geoResponse = function(e, data) {
-              logLocation(data.latitude, data.longitude);
-            }
-
-            function logLocation(lat, lng, location) {
-              if (location) console.log("Geocoded result ready for", location);
-              else console.log("Using user's location.");
-              console.log('center: [' + lat + ',' + lng + ']');
-              console.log('radiusKm:', scope2.radiusKm);
+            scope2.getQuery = function(e) {
+              var data = scope2.$.input2.getCurrentQuery();
+              scope2.$.query2.innerHTML = 'Query:'
+                + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                + '<br>search: ' + data.search
+                + '<br>radiusKm: ' + data.radiusKm
+                + '<br>searchInvalid: ' + data.searchInvalid;
             }
           </script>
         </template>
       </demo-snippet>
 
-      <h3>Using a map and data</h3>
+      <h3>Session storage</h3>
       <demo-snippet>
         <template is="dom-bind" id="scope3">
-          <geo-location latitude="{{userLat}}" longitude="{{userLng}}"></geo-location>
-          <geo-codec id="codec" api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"></geo-codec>
-
-          <geo-query-input
-            location="usa"
-            radius-options="[[radii]]"
-            radius="999"
-            unit="{{unit}}"
-            on-query-changed="queryChanged"></geo-query-input>
-
-          <geofire-query
-            id="query"
-            app="demo"
-            path="geofire1"
-            lat="[[lat]]"
-            lng="[[lng]]"
-            radius="[[radiusKm]]"
-            results-array="{{results}}"></geofire-query>
-
-            <button onclick="addMe()" style="margin: 8px 0; padding: 4px 8px;">Add Me</button>
-
-            <google-map
-              latitude="[[lat]]"
-              longitude="[[lng]]"
-              api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"
-              style="height:300px"
-              zoom="[[_radiusToZoom(radiusKm)]]"
-              disable-street-view-control>
-              <google-map-marker
-                latitude="[[lat]]"
-                longitude="[[lng]]"
-                icon="http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_blue.png"
-                title="Search center"></google-map-marker>
-              <template is="dom-repeat" items="[[results]]">
-                <google-map-marker latitude="[[item.lat]]" longitude="[[item.lng]]" title="[[item.distance]] km">
-                  <div>[[[item.lat]], [[item.lng]]]</div>
-                  <div>[[item.distance]] km</div>
-                </google-map-marker>
-              </template>
-            </google-map>
-
+          <geo-query-input session-only on-query-changed="queryChanged"></geo-query-input>
+          <div id="query3"></div>
           <script>
             var scope3 = document.getElementById('scope3');
-            scope3.radii = [100, 250, 500, 999];
-
             scope3.queryChanged = function(e, data) {
-              console.log('Query changed', data);
-              scope3.radiusKm = data.radiusKm;
-              if (data.useCurrentLocation) {
-                scope3.lat = scope3.userLat;
-                scope3.lng = scope3.userLng;
-              } else {
-                var el = document.getElementById('codec');
-                console.log('geocoding', data.location);
-                el.geocode(data.location, function (address, lat, lng, place) {
-                  console.log(address, lat, lng);
-                  scope3.lat = lat;
-                  scope3.lng = lng;
-                });
-              }
-            };
-
-            function addMe() {
-              var scope3 = document.getElementById('scope3');
-              // one decimal place ~= 11.1 km
-              // two decimal places ~= 1.1 km
-              var lat = Math.round(scope3.userLat * 10) / 10;
-              var lng =  Math.round(scope3.userLng * 10) / 10;
-
-              var key = ('user_' + lat + '_' + lng).replace(/\./g, ',');
-              var geo = document.getElementById('query')._geofire;
-              geo.set(key, [lat, lng]).then(function () {
-                  console.log('Your rough location been added to the map!');
-                }, function (error) {
-                  console.log('Write failed', error);
-                });
+              scope3.$.query3.innerHTML = 'Query:'
+                + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                + '<br>search: ' + data.search
+                + '<br>radiusKm: ' + data.radiusKm;
             }
-            /**
-             * Convert miles to a google map's zoom, based on a zoom of 14 ~= 1 mile.
-             */
-            scope3.radiusToZoom = function(radiusKm) {
-              radius = radiusKm / 1.60934;
-              var zoom = Math.round(14 - Math.log(radius) / Math.LN2);
-              // console.log('zoom', zoom);
-              return zoom;
-            },
+          </script>
+        </template>
+      </demo-snippet>
+
+      <h3>No storage</h3>
+      <demo-snippet>
+        <template is="dom-bind" id="scope4">
+          <geo-query-input no-storage on-query-changed="queryChanged"></geo-query-input>
+          <div id="query4"></div>
+          <script>
+            var scope4 = document.getElementById('scope4');
+            scope4.queryChanged = function(e, data) {
+              scope4.$.query4.innerHTML = 'Query:'
+                + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                + '<br>search: ' + data.search
+                + '<br>radiusKm: ' + data.radiusKm;
+            }
+          </script>
+        </template>
+      </demo-snippet>
+
+      <h3>Styled</h3>
+      <demo-snippet>
+        <template is="dom-bind" id="scope5">
+          <style is="custom-style">
+            geo-query-input.styled {
+              --gqi-container: {
+                @apply --layout-wrap;
+              };
+              --gqi-radius-dropdown-width: 9em;
+              --gqi-unit-dropdown-width: 6em;
+              --gqi-dropdown-icon-size: 24px;
+              --gqi-search-input-width: 10em;
+              --gqi-font: {
+                font-size: 12pt;
+              };
+              --gqi-font-small: {
+                font-size: 10pt;
+                text-decoration: underline;
+              };
+              --gqi-checkbox-size: 24px;
+              --gqi-checkbox-label-spacing: 8px;
+              --gqi-spacing: 8px;
+              --gqi-dropdown-spacing: 6px;
+            }
+          </style>
+          <geo-query-input class="styled" on-query-changed="queryChanged"></geo-query-input>
+          <div id="query5"></div>
+          <script>
+            var scope5 = document.getElementById('scope5');
+            scope5.queryChanged = function(e, data) {
+              scope5.$.query5.innerHTML = 'Query:'
+                + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                + '<br>search: ' + data.search
+                + '<br>radiusKm: ' + data.radiusKm;
+            }
           </script>
         </template>
       </demo-snippet>

@@ -11,6 +11,19 @@
 `geo-query-input`
 A Polymer element for specifying latitude, longitude, and search radius for geographical queries.
 
+**Styles**
+`--gqi-container` Mixin applied to the container.
+`--gqi-radius-dropdown-width` The width of the radius dropdown.
+`--gqi-unit-dropdown-width` The width of the radius-unit dropdown.
+`--gqi-dropdown-icon-size` The height and width of the dropdown menu icons.
+`--gqi-search-input-width` The width of the search input field.
+`--gqi-font` Mixin applied to several elements' font.
+`--gqi-font-small` Mixin applied the the font of the "or" span.
+`--gqi-checkbox-size` The height and width of the checkbox.
+`--gqi-checkbox-label-spacing` Space between the checkbox and its label.
+`--gqi-spacing` The space between each element, except the two dropdowns.
+`--gqi-dropdown-spacing` The space between the radius and unit dropdowns.
+
 @demo demo/index.html
 -->
 
@@ -19,97 +32,116 @@ A Polymer element for specifying latitude, longitude, and search radius for geog
     <style>
       :host {
         display: block;
-        --font-small: {
+        --gqi-font: {
           @apply --paper-font-common-base;
           font-size: 12px;
           font-weight: 400;
           line-height: 16px;
         };
-        --font-tiny: {
+        --gqi-font-small: {
           @apply --paper-font-common-base;
           font-size: 10px;
           font-weight: 300;
           line-height: 14px;
         };
 
-        @apply --font-small;
+        @apply --gqi-font;
       }
-      :host > div > div {
-        margin: 0 4px;
-      }
-      paper-dropdown-menu {
-        max-width: 4em;
-        --paper-dropdown-menu-input: {
-          /*FIXME if this line is removed, setting the font size has no effect*/
-          --paper-input-container: {
-            /*FIXME if this line is removed, changing the icon size has no effect*/
-            --iron-icon: {};
-            --iron-icon-width: 16px;
-            --iron-icon-height: 16px;
-          };
-          --paper-input-container-input: {
-            @apply --font-small;
-            text-align: right;
-          };
-        };
-      }
-      .radius-menu {
-        margin: 0 4px;
-      }
-      .unit-menu {
-        width: 3em;
-        margin-right: 4px;
-      }
-      paper-item {
-        --paper-item: {
-          @apply --font-small;
-        };
-      }
-      paper-input {
-        margin-bottom: 8px;
-        width: 6em;
-        --paper-input-container-label: {
-          @apply --font-small;
-          padding: 0;
-          margin: 0;
-        };
-        /*FIXME causes exceptions on 2.0-preview */
-        --paper-input-container-input: {
-          @apply --font-small;
-        };
-        --paper-input-container: {
-          padding: 0;
-          margin: 0;
-        }
-      }
-      paper-checkbox {
-        --paper-checkbox-size: 14px;
-        --paper-checkbox-label-spacing: 4px;
-      }
-      .or {
-        @apply --font-tiny;
-        margin: 0 4px;
-        font-style: italic;
-      }
+
       .container {
         @apply --layout-horizontal;
         @apply --layout-center;
-        /*@apply --layout-wrap;*/
+        @apply --gqi-container;
       }
-      .center-point {
-        @apply --layout-horizontal;
-        @apply --layout-center;
+
+      .or {
+        font-style: italic;
+        @apply --gqi-font-small;
+      }
+
+      .radius-menu, .unit-menu {
+        --paper-input-container-input: {
+          text-align: right;
+          @apply --gqi-font;
+        };
+        --iron-icon-width: var(--gqi-dropdown-icon-size, 16px);
+        --iron-icon-height: var(--gqi-dropdown-icon-size, 16px);
+      }
+      .radius-menu {
+        width: var(--gqi-radius-dropdown-width, 4em);
+      }
+      .unit-menu {
+        width: var(--gqi-unit-dropdown-width, 3em);
+      }
+
+      paper-input {
+        display: inline-block;
+        width: var(--gqi-search-input-width, 6em);
+        --paper-input-container-label: {
+          @apply --gqi-font;
+        };
+        --paper-input-container-input: {
+          @apply --gqi-font;
+        };
+      }
+      paper-item {
+        --paper-item: {
+          @apply --gqi-font;
+        };
+      }
+
+      paper-checkbox {
+        --paper-checkbox-size: var(--gqi-checkbox-size, 14px);
+        --paper-checkbox-label-spacing: var(--gqi-checkbox-label-spacing, 4px);
+      }
+
+      .spacer {
+        display: inline-block;
+        width: var(--gqi-spacing, 6px);
+      }
+      .dropdown-spacer {
+        display: inline-block;
+        width: var(--gqi-dropdown-spacing, 2px);
       }
     </style>
-
-    <div class=".container">
-      <div>
-        <!-- FIXME if these viewless elements are top-level, there is no space between "of" and the paper-input.         -->
-        <app-localstorage-document key="radius" data="{{radius}}">
-        <app-localstorage-document key="unit" data="{{unit}}">
-        <app-localstorage-document key="location" data="{{location}}">
-        <app-localstorage-document key="useCurrentLocation" data="{{useCurrentLocation}}">
-        Within
+    <template is="dom-if" if="[[!noStorage]]" restamp>
+      <!-- FIXME multiple uses in the same page can be accomplished after https://github.com/PolymerElements/app-storage/pull/76 -->
+      <!-- <app-localstorage-document
+        sessionOnly="[[sessionOnly]]"
+        key="[[_keyFor('radius')]]"
+        data="{{radius}}"></app-localstorage-document>
+      <app-localstorage-document
+        sessionOnly="[[sessionOnly]]"
+        key="[[_keyFor('unit')]]"
+        data="{{unit}}"></app-localstorage-document>
+      <app-localstorage-document
+        sessionOnly="[[sessionOnly]]"
+        key="[[_keyFor('search')]]"
+        data="{{search}}"></app-localstorage-document>
+      <app-localstorage-document
+        sessionOnly="[[sessionOnly]]"
+        key="[[_keyFor('useCurrentLocation')]]"
+        data="{{useCurrentLocation}}"></app-localstorage-document> -->
+      <app-localstorage-document
+        session-only="[[sessionOnly]]"
+        key="geoQueryInputRadius"
+        data="{{radius}}"></app-localstorage-document>
+      <app-localstorage-document
+        session-only="[[sessionOnly]]"
+        key="geoQueryInputUnit"
+        data="{{unit}}"></app-localstorage-document>
+      <app-localstorage-document
+        session-only="[[sessionOnly]]"
+        key="geoQueryInputSearch"
+        data="{{search}}"></app-localstorage-document>
+      <app-localstorage-document
+        session-only="[[sessionOnly]]"
+        key="geoQueryInputUseCurrentLocation"
+        data="{{useCurrentLocation}}"></app-localstorage-document>
+    </template>
+    <div class="container">
+        <span>Within</span>
+        <div class="spacer"></div>
         <paper-dropdown-menu class="radius-menu" no-animations noink no-label-float>
           <paper-listbox
             class="dropdown-content"
@@ -122,6 +154,7 @@ A Polymer element for specifying latitude, longitude, and search radius for geog
             <!-- </dom-repeat> -->
           </paper-listbox>
         </paper-dropdown-menu>
+        <div class="dropdown-spacer"></div>
         <paper-dropdown-menu class="unit-menu" no-animations noink no-label-float>
           <paper-listbox
             class="dropdown-content"
@@ -131,22 +164,24 @@ A Polymer element for specifying latitude, longitude, and search radius for geog
             <paper-item value="mi">mi</paper-item>
           </paper-listbox>
         </paper-dropdown-menu>
-        of
-      </div>
-      <div class="center-point">
+        <div class="spacer"></div>
+        <span>of</span>
+        <div class="spacer"></div>
         <paper-input
-          id="locationInput"
-          value="{{location}}"
+          id="searchInput"
+          value="{{search}}"
           label="[[inputLabel]]"
           auto-validate
-          always-float-label
-          focused="{{locationInputFocused}}"
+          no-label-float
+          focused="{{searchInputFocused}}"
           minlength="3"
           error-message="[[errorMsg]]">
         </paper-input>
+        <div class="spacer"></div>
         <span class="or">or</span>
-        <paper-checkbox noink checked="{{useCurrentLocation}}" on-change="_blurCheckbox">me</paper-checkbox>
-      </div>
+        <div class="spacer"></div>
+        <paper-checkbox id="checkbox" noink checked="{{useCurrentLocation}}">me</paper-checkbox>
+        <slot name="submit-button"></slot>
     </div>
   </template>
 
@@ -164,38 +199,38 @@ A Polymer element for specifying latitude, longitude, and search radius for geog
       },
 
       /**
-       * The label for the location input.
+       * The label for the search input.
        */
       inputLabel: {
         type: String,
-        value: 'Zip or description'
+        value: 'search'
       },
 
       /**
-       * The error message for the location input.
+       * The error message for the search input.
        */
       errorMsg: {
         type: String,
-        value: 'At least 3 characters'
+        value: '3 char min'
       },
 
       /**
-       * The value of the location input.
+       * The value of the search input.
        */
-      location: {
-          type: String,
-          notify: true,
-          observer: '_locationChanged'
+      search: {
+        type: String,
+        notify: true,
+        observer: '_searchChanged'
       },
 
       /**
-       * Whether to use the user's current location as opposed to the location input field.
+       * Whether to use the user's current location as opposed to the search input field.
        */
       useCurrentLocation: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true,
-          notify: true,
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true,
       },
 
       /**
@@ -203,63 +238,103 @@ A Polymer element for specifying latitude, longitude, and search radius for geog
        * on the `unit` property.
        */
       radius: {
-          type: Number,
-          value: 50,
-          notify: true
+        type: Number,
+        value: 50,
+        notify: true
       },
 
       /**
        * The values for the radius dropdown chooser.
        */
       radiusOptions: {
-          type: Array,
-          value: [10, 25, 50, 100, 200]
+        type: Array,
+        value: [10, 25, 50, 100, 200]
+      },
+
+      /**
+       * If true, the data will automatically be cleared from storage when
+       * the page session ends (i.e. when the user has navigated away from
+       * the page).
+       */
+      sessionOnly: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * Whether to allow backup to local/session storage. Overrides sessionOnly when true
+       */
+      noStorage: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+
+      /**
+       * The number of milliseconds to wait for input changes
+       * before firing `query-changed` after an input changes.
+       */
+      debounceDuration: {
+        type: Number,
+        value: 1000
       }
     },
     observers: [
-      '_queryChanged(unit, radius, location, useCurrentLocation)',
-      '_locationInputFocusChanged(locationInputFocused)'
+      '_queryChanged(unit, radius, search, useCurrentLocation)',
+      '_searchInputFocusChanged(searchInputFocused)'
     ],
 
     created: function() {
       // this.debouncer = new Polymer.Debouncer(this);
     },
 
-    _locationChanged: function(loc, oldLoc) {
-      if (loc || oldLoc) {
+    _searchChanged: function(search, old) {
+      if (search || old) {
         this.useCurrentLocation = false;
       }
     },
 
-    _locationInputFocusChanged: function(focused) {
+    _searchInputFocusChanged: function(focused) {
       if (focused) {
-        this.$.locationInput.$.input.select();
+        this.$.searchInput.$.input.select();
       }
     },
 
-    _queryChanged: function(unit, radius, location, useCurrentLocation) {
-      if (radius && (useCurrentLocation || (location && this.$.locationInput.validate()))) {
+    _queryChanged: function(unit, radius, search, useCurrentLocation) {
+      if (radius && (useCurrentLocation || (search && this.$.searchInput.validate()))) {
         this.debounce('query-changed', function() {
           this.fire('query-changed', {
             radiusKm: unit == 'km' ? radius : (radius * 1.60934),
-            location: location,
+            search: search,
             useCurrentLocation: useCurrentLocation
           });
-          this.$.locationInput.blur();
-        }.bind(this), 1000, this);
+          this.$.searchInput.blur();
+          this.$.checkbox.blur();
+        }.bind(this), this.debounceDuration, this);
       }
     },
 
-    _blurCheckbox: function(e) {
-      var el = e.srcElement || e.target;
-      el.blur();
+    getCurrentQuery: function() {
+      return {
+        radiusKm: this.unit == 'km' ? this.radius : (this.radius * 1.60934),
+        search: this.search,
+        useCurrentLocation: this.useCurrentLocation,
+        searchInvalid: !this.$.searchInput.validate()
+      }
+    },
+
+    /** work around multiple instances in one page sharing the same local storage */
+    _keyFor: function(type) {
+      console.log('key:', this.id + type);
+      return 'geoQueryInput' + this.id + type;
     }
+
 
     /**
      * Triggered when a user taps the submit button.
      * @event query-changed
      * @param {useCurrentLocation} boolean Whether the user's current location should be used.
-     * @param {location} string The string to geocode if not using the user's current location.
+     * @param {search} string The string to geocode if not using the user's current location.
      * @param {radiusKm} number The radius in kilometers to search from the center point.
      */
   });
