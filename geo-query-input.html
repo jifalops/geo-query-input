@@ -143,20 +143,18 @@ Custom property | Description | Default
     <div class="container">
         <span>Within</span>
         <div class="spacer"></div>
-        <paper-dropdown-menu class="radius-menu" no-animations noink no-label-float>
+        <paper-dropdown-menu class="radius-menu" label="radius" no-animations noink no-label-float>
           <paper-listbox
             class="dropdown-content"
             attr-for-selected="value"
             selected="{{radius}}">
-            <!-- <dom-repeat items="[[radiusOptions]]"> -->
             <template is="dom-repeat" items="[[radiusOptions]]">
               <paper-item value="[[item]]">[[item]]</paper-item>
             </template>
-            <!-- </dom-repeat> -->
           </paper-listbox>
         </paper-dropdown-menu>
         <div class="dropdown-spacer"></div>
-        <paper-dropdown-menu class="unit-menu" no-animations noink no-label-float>
+        <paper-dropdown-menu class="unit-menu" label="unit" no-animations noink no-label-float>
           <paper-listbox
             class="dropdown-content"
             attr-for-selected="value"
