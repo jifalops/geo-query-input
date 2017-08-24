@@ -8,101 +8,100 @@
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 
 <!--
-`geo-query-input`
-Specify the center point and search radius for geographical queries.
+CSS Custom property | Description | Default
+--------------------|-------------|----------
+`--qgi-font` | Font mixin for all of the elements | paper-font-default, 12px
+`--qgi-radius-width` | The width of the radius dropdown. | 4em
+`--qgi-unit-width` | The width of the radius-unit dropdown. | 3em
+`--qgi-dropdown-icon-size` | The height and width of the dropdown menu icons. | 16px
+`--qgi-search-input-width` | The width of the search input field. | 6em
 
-Custom property | Description | Default
-----------------|-------------|----------
-`--gqi-container` | Mixin applied to the container.
-`--gqi-radius-dropdown-width` | The width of the radius dropdown. | 4em
-`--gqi-unit-dropdown-width` | The width of the radius-unit dropdown. | 3em
-`--gqi-dropdown-icon-size` | The height and width of the dropdown menu icons. | 16px
-`--gqi-search-input-width` | The width of the search input field. | 6em
-`--gqi-font` | Mixin applied to several elements' font.
-`--gqi-font-small` | Mixin applied the the font of the "or" span.
-`--gqi-checkbox-size` | The height and width of the checkbox. | 14px
-`--gqi-checkbox-label-spacing` | Space between the checkbox and its label. | 4px
-`--gqi-spacing` | The space between each element, except the two dropdowns. | 6px
-`--gqi-dropdown-spacing` | The space between the radius and unit dropdowns. | 2px
-
-@demo demo/index.html
+`--qgi-font-small` | Mixin applied the the font of the "or" span.
+`--qgi-checkbox-size` | The height and width of the checkbox. | 14px
+`--qgi-checkbox-label-spacing` | Space between the checkbox and its label. | 4px
+`--qgi-spacing` | The space between each element, except the two dropdowns. | 6px
+`--qgi-dropdown-spacing` | The space between the radius and unit dropdowns. | 2px
 -->
-
 <dom-module id="geo-query-input">
-  <template>
+  <template strip-whitespace>
     <style>
       :host {
         display: block;
-        --gqi-font: {
+
+        --qgi-font: {
           @apply --paper-font-common-base;
           font-size: 12px;
           font-weight: 400;
-          line-height: 16px;
-        };
-        --gqi-font-small: {
-          @apply --paper-font-common-base;
-          font-size: 10px;
-          font-weight: 300;
-          line-height: 14px;
+          /*line-height: 16px;*/
         };
 
-        @apply --gqi-font;
+        --qgi-spacing: 0.5em;
+        --qgi-radius-width: 4em;
+        --qgi-unit-width: 3em;
+        --qgi-search-width: 6em;
+        --qgi-dropdown-icon: 16px;
+        --qgi-checkbox-size: 14px;
+
+        @apply --qgi-font;
       }
 
       .container {
         @apply --layout-horizontal;
         @apply --layout-center;
-        @apply --gqi-container;
       }
 
-      .or {
-        font-style: italic;
-        @apply --gqi-font-small;
+      .prefix {
+        margin-right: var(--qgi-spacing);
+      }
+
+      .of, .or {
+        margin: 0 var(--qgi-spacing);
       }
 
       .radius-menu, .unit-menu {
         --paper-input-container-input: {
           text-align: right;
-          @apply --gqi-font;
+          @apply --qgi-font;
         };
-        --iron-icon-width: var(--gqi-dropdown-icon-size, 16px);
-        --iron-icon-height: var(--gqi-dropdown-icon-size, 16px);
+        --paper-input-container-label: {
+          text-align: right;
+          @apply --qgi-font;
+        };
+        --iron-icon-width: var(--qgi-dropdown-icon);
+        --iron-icon-height: var(--qgi-dropdown-icon);
       }
       .radius-menu {
-        width: var(--gqi-radius-dropdown-width, 4em);
+        width: var(--qgi-radius-width);
+        margin-right: calc(var(--qgi-spacing) / 2);
       }
       .unit-menu {
-        width: var(--gqi-unit-dropdown-width, 3em);
+        width: var(--qgi-unit-width);
       }
 
       paper-input {
         display: inline-block;
-        width: var(--gqi-search-input-width, 6em);
+        width: var(--qgi-search-width);
         --paper-input-container-label: {
-          @apply --gqi-font;
+          text-align: center;
+          @apply --qgi-font;
+
         };
         --paper-input-container-input: {
-          @apply --gqi-font;
+          @apply --qgi-font;
         };
+        /*--paper-input-error: {
+          @apply --qgi-font;
+        };*/
       }
       paper-item {
         --paper-item: {
-          @apply --gqi-font;
+          @apply --qgi-font;
         };
       }
 
       paper-checkbox {
-        --paper-checkbox-size: var(--gqi-checkbox-size, 14px);
-        --paper-checkbox-label-spacing: var(--gqi-checkbox-label-spacing, 4px);
-      }
-
-      .spacer {
-        display: inline-block;
-        width: var(--gqi-spacing, 6px);
-      }
-      .dropdown-spacer {
-        display: inline-block;
-        width: var(--gqi-dropdown-spacing, 2px);
+        --paper-checkbox-size: var(--qgi-checkbox-size);
+        --paper-checkbox-label-spacing: calc(var(--qgi-spacing) / 2);
       }
     </style>
     <template is="dom-if" if="[[!noStorage]]" restamp>
@@ -141,11 +140,10 @@ Custom property | Description | Default
         data="{{useCurrentLocation}}"></app-localstorage-document>
     </template>
     <div class="container">
-        <span>Within</span>
-        <div class="spacer"></div>
+        <span class="prefix">[[prefix]]</span>
         <paper-dropdown-menu class="radius-menu" label="radius" no-animations noink no-label-float>
           <paper-listbox
-            class="dropdown-content"
+            slot="dropdown-content"
             attr-for-selected="value"
             selected="{{radius}}">
             <template is="dom-repeat" items="[[radiusOptions]]">
@@ -153,43 +151,69 @@ Custom property | Description | Default
             </template>
           </paper-listbox>
         </paper-dropdown-menu>
-        <div class="dropdown-spacer"></div>
         <paper-dropdown-menu class="unit-menu" label="unit" no-animations noink no-label-float>
           <paper-listbox
-            class="dropdown-content"
+            slot="dropdown-content"
             attr-for-selected="value"
             selected="{{unit}}">
             <paper-item value="km">km</paper-item>
             <paper-item value="mi">mi</paper-item>
           </paper-listbox>
         </paper-dropdown-menu>
-        <div class="spacer"></div>
-        <span>of</span>
-        <div class="spacer"></div>
+        <span class="of">of</span>
         <paper-input
           id="searchInput"
           value="{{search}}"
-          label="[[inputLabel]]"
+          label="[[searchLabel]]"
           auto-validate
           no-label-float
           focused="{{searchInputFocused}}"
           minlength="3"
           error-message="[[errorMsg]]">
         </paper-input>
-        <div class="spacer"></div>
         <span class="or">or</span>
-        <div class="spacer"></div>
-        <paper-checkbox id="checkbox" noink checked="{{useCurrentLocation}}">me</paper-checkbox>
+        <paper-checkbox id="checkbox" noink checked="{{useCurrentLocation}}">[[locationLabel]]</paper-checkbox>
+
+
         <slot name="submit-button"></slot>
     </div>
   </template>
 
   <script>
+    /**
+     * `geo-query-input`
+     * Specify the center point and search radius for geographical queries.
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
   Polymer({
     is: 'geo-query-input',
     properties: {
+      /*
+       * Text placed before the radius dropdown.
+       */
+      prefix: {
+        type: String,
+        value: 'Within'
+      },
+      /*
+       * Current location checkbox label.
+       */
+      locationLabel: {
+        type: String,
+        value: 'my location'
+      },
       /**
-       * Whether to use miles or kilometers ('mi' or 'km'). Defaults to miles.
+       * The label for the search input.
+       */
+      searchLabel: {
+        type: String,
+        value: 'search'
+      },
+      /**
+       * Whether to use miles or kilometers ('mi' or 'km').
        */
       unit: {
         type: String,
@@ -197,13 +221,7 @@ Custom property | Description | Default
         notify: true
       },
 
-      /**
-       * The label for the search input.
-       */
-      inputLabel: {
-        type: String,
-        value: 'search'
-      },
+
 
       /**
        * The error message for the search input.
@@ -295,7 +313,7 @@ Custom property | Description | Default
 
     _searchInputFocusChanged: function(focused) {
       if (focused) {
-        this.$.searchInput.$.input.select();
+        this.$.searchInput.$.input.inputElement.select();
       }
     },
 
