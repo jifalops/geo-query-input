@@ -35,7 +35,7 @@
               var scope = document.getElementById('scope');
               scope.queryChanged = function(e, data) {
                 scope.$.query.innerHTML = 'Query:'
-                  + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                  + '<br>location: ' + data.location
                   + '<br>search: ' + data.search
                   + '<br>radiusKm: ' + data.radiusKm;
               }
@@ -59,7 +59,7 @@
               scope2.getQuery = function(e) {
                 var data = scope2.$.input2.getCurrentQuery();
                 scope2.$.query2.innerHTML = 'Query:'
-                  + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                  + '<br>location: ' + data.location
                   + '<br>search: ' + data.search
                   + '<br>radiusKm: ' + data.radiusKm
                   + '<br>searchInvalid: ' + data.searchInvalid;
@@ -79,7 +79,7 @@
               var scope3 = document.getElementById('scope3');
               scope3.queryChanged = function(e, data) {
                 scope3.$.query3.innerHTML = 'Query:'
-                  + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                  + '<br>location: ' + data.location
                   + '<br>search: ' + data.search
                   + '<br>radiusKm: ' + data.radiusKm;
               }
@@ -98,7 +98,7 @@
               var scope4 = document.getElementById('scope4');
               scope4.queryChanged = function(e, data) {
                 scope4.$.query4.innerHTML = 'Query:'
-                  + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                  + '<br>location: ' + data.location
                   + '<br>search: ' + data.search
                   + '<br>radiusKm: ' + data.radiusKm;
               }
@@ -114,24 +114,9 @@
             <custom-style>
               <style>
                 geo-query-input.styled {
-                  --gqi-container: {
-                    @apply --layout-wrap;
-                  };
-                  --gqi-radius-dropdown-width: 9em;
-                  --gqi-unit-dropdown-width: 6em;
-                  --gqi-dropdown-icon-size: 24px;
-                  --gqi-search-input-width: 10em;
                   --gqi-font: {
                     font-size: 12pt;
                   };
-                  --gqi-font-small: {
-                    font-size: 10pt;
-                    text-decoration: underline;
-                  };
-                  --gqi-checkbox-size: 24px;
-                  --gqi-checkbox-label-spacing: 8px;
-                  --gqi-spacing: 8px;
-                  --gqi-dropdown-spacing: 6px;
                 }
               </style>
             </custom-style>
@@ -141,7 +126,7 @@
               var scope5 = document.getElementById('scope5');
               scope5.queryChanged = function(e, data) {
                 scope5.$.query5.innerHTML = 'Query:'
-                  + '<br>useCurrentLocation: ' + data.useCurrentLocation
+                  + '<br>location: ' + data.location
                   + '<br>search: ' + data.search
                   + '<br>radiusKm: ' + data.radiusKm;
               }

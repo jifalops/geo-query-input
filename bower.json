@@ -2,7 +2,9 @@
   "name": "geo-query-input",
   "description": "Specify the center point and search radius for geographical queries.",
   "main": "geo-query-input.html",
-  "authors": ["Jacob Phillips (https://github.com/jifalops) <jifalops@gmail.com>"],
+  "authors": [
+    "Jacob Phillips (https://github.com/jifalops) <jifalops@gmail.com>"
+  ],
   "license": "MIT",
   "keywords": [
     "web-components",
@@ -21,7 +23,9 @@
     "paper-checkbox": "^2.0.0",
     "paper-input": "^2.0.0",
     "app-storage": "^2.0.0",
-    "shadycss": "^1.0.0"
+    "shadycss": "^1.0.0",
+    "geo-codec": "^2.0.0",
+    "geo-location": "^2.0.1"
   },
   "devDependencies": {
     "iron-demo-helpers": "^2.0.0",

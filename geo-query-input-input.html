@@ -6,9 +6,6 @@
 <link rel="import" href="../app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../paper-styles/typography.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../geo-location/geo-location.html">
-<link rel="import" href="../geo-location/geo-location.html">
-<link rel="import" href="../geo-codec/geo-codec.html">
 
 <!--
 CSS Custom property | Description | Default
@@ -20,7 +17,7 @@ CSS Custom property | Description | Default
 `--gqi-dropdown-icon` | The height and width of the dropdown menu icons. | 1em
 `--gqi-checkbox-size` | The height and width of the checkbox. | 1.2em
 -->
-<dom-module id="geo-query-input">
+<dom-module id="geo-query-input-input">
   <template strip-whitespace>
     <style>
       :host {
@@ -104,15 +101,6 @@ CSS Custom property | Description | Default
         --paper-checkbox-label-spacing: calc(var(--gqi-spacing) / 2);
       }
     </style>
-
-    <geo-location
-      idle="[[!location]]"
-      latitude="{{currentLat}}"
-      longitude="{{currentLng}}"
-      on-geo-error="_onGeolocationError">
-    </geo-location>
-    <geo-codec id="codec" api-key="[[apiKey]]"></geo-codec>
-
     <template is="dom-if" if="[[!noStorage]]" restamp>
       <!-- FIXME multiple uses in the same page can be accomplished after https://github.com/PolymerElements/app-storage/pull/76 -->
       <!-- <app-localstorage-document
