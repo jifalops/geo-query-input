@@ -13,124 +13,66 @@
 
     <custom-style>
       <style include="demo-pages-shared-styles">
+        geo-query-input.big {
+          --gqi-font: {
+            font-size: 14pt;
+          };
+        }
+        geo-query-input.small {
+          --gqi-font: {
+            font-size: 8pt;
+          };
+        }
       </style>
     </custom-style>
   </head>
   <body>
 
     <div class="vertical-section-container centered">
-      <div>
-        Note mutliple instances in the same page share the same local-storage location
-        until <a href="https://github.com/PolymerElements/app-storage/pull/76">this pull request</a>
-        gets accepted.
-      </div>
+      <!--<div>
+        Currently, mutliple instances in the same page must share the same local-storage location.
+        See this <a href="https://github.com/PolymerElements/app-storage/pull/76">pull request</a>
+        for more info.
+      </div>-->
 
-      <h3>Basic use</h3>
+      <h3>Basic demo</h3>
       <demo-snippet>
-        <dom-bind id="scope">
+        <dom-bind>
           <template>
-            <geo-query-input on-query-changed="queryChanged"></geo-query-input>
-            <div id="query"></div>
-            <script>
-              var scope = document.getElementById('scope');
-              scope.queryChanged = function(e, data) {
-                scope.$.query.innerHTML = 'Query:'
-                  + '<br>location: ' + data.location
-                  + '<br>search: ' + data.search
-                  + '<br>radiusKm: ' + data.radiusKm;
-              }
-            </script>
-          </template>
-        </dom-bind>
-      </demo-snippet>
-
-      <h3>Using the `submit-button` slot</h3>
-      <demo-snippet>
-        <dom-bind id="scope2">
-          <template>
-            <geo-query-input id="input2">
-              <div slot="submit-button">
-                <button on-tap="getQuery" style="margin-left:8px">Go</button>
-              </div>
-            </geo-query-input>
-            <div id="query2"></div>
-            <script>
-              var scope2 = document.getElementById('scope2');
-              scope2.getQuery = function(e) {
-                var data = scope2.$.input2.getCurrentQuery();
-                scope2.$.query2.innerHTML = 'Query:'
-                  + '<br>location: ' + data.location
-                  + '<br>search: ' + data.search
-                  + '<br>radiusKm: ' + data.radiusKm
-                  + '<br>searchInvalid: ' + data.searchInvalid;
-              }
-            </script>
-          </template>
-        </dom-bind>
-      </demo-snippet>
-
-      <h3>Session storage</h3>
-      <demo-snippet>
-        <dom-bind id="scope3">
-          <template>
-            <geo-query-input session-only on-query-changed="queryChanged"></geo-query-input>
-            <div id="query3"></div>
-            <script>
-              var scope3 = document.getElementById('scope3');
-              scope3.queryChanged = function(e, data) {
-                scope3.$.query3.innerHTML = 'Query:'
-                  + '<br>location: ' + data.location
-                  + '<br>search: ' + data.search
-                  + '<br>radiusKm: ' + data.radiusKm;
-              }
-            </script>
-          </template>
-        </dom-bind>
-      </demo-snippet>
-
-      <h3>No storage</h3>
-      <demo-snippet>
-        <dom-bind id="scope4">
-          <template>
-            <geo-query-input no-storage on-query-changed="queryChanged"></geo-query-input>
-            <div id="query4"></div>
-            <script>
-              var scope4 = document.getElementById('scope4');
-              scope4.queryChanged = function(e, data) {
-                scope4.$.query4.innerHTML = 'Query:'
-                  + '<br>location: ' + data.location
-                  + '<br>search: ' + data.search
-                  + '<br>radiusKm: ' + data.radiusKm;
-              }
-            </script>
+            <geo-query-input query="{{query}}" api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"></geo-query-input>
+            <div>lat: [[query.lat]]</div>
+            <div>lng: [[query.lng]]</div>
+            <div>radiusKm: [[query.radiusKm]]</div>
+            <div>fromSearch: [[query.fromSearch]]</div>
+            <br/>
+            <div><u>Inputs</u></div>
+            <div>radius: [[query.inputs.radius]]</div>
+            <div>unit: [[query.inputs.unit]]</div>
+            <div>search: [[query.inputs.search]]</div>
+            <div>location: [[query.inputs.location]]</div>
+            <div>valid: [[query.inputs.valid]]</div>
           </template>
         </dom-bind>
       </demo-snippet>
 
       <h3>Styled</h3>
+      Simply setting the font-size scales the elements and spacing.
       <demo-snippet>
-        <dom-bind id="scope5">
+        <dom-bind>
           <template>
-            <custom-style>
-              <style>
-                geo-query-input.styled {
-                  --gqi-font: {
-                    font-size: 12pt;
-                  };
-                }
-              </style>
-            </custom-style>
-            <geo-query-input class="styled" on-query-changed="queryChanged"></geo-query-input>
-            <div id="query5"></div>
-            <script>
-              var scope5 = document.getElementById('scope5');
-              scope5.queryChanged = function(e, data) {
-                scope5.$.query5.innerHTML = 'Query:'
-                  + '<br>location: ' + data.location
-                  + '<br>search: ' + data.search
-                  + '<br>radiusKm: ' + data.radiusKm;
-              }
-            </script>
+            <geo-query-input session-storage class="small" query="{{query}}" api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"></geo-query-input>
+            <geo-query-input session-storage class="big" query="{{query}}" api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"></geo-query-input>
+            <div>lat: [[query.lat]]</div>
+            <div>lng: [[query.lng]]</div>
+            <div>radiusKm: [[query.radiusKm]]</div>
+            <div>fromSearch: [[query.fromSearch]]</div>
+            <br/>
+            <div><u>Inputs</u></div>
+            <div>radius: [[query.inputs.radius]]</div>
+            <div>unit: [[query.inputs.unit]]</div>
+            <div>search: [[query.inputs.search]]</div>
+            <div>location: [[query.inputs.location]]</div>
+            <div>valid: [[query.inputs.valid]]</div>
           </template>
         </dom-bind>
       </demo-snippet>

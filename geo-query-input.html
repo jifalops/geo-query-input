@@ -1,3 +1,4 @@
+<link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-item/paper-item.html">
@@ -6,7 +7,6 @@
 <link rel="import" href="../app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../paper-styles/typography.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../geo-location/geo-location.html">
 <link rel="import" href="../geo-location/geo-location.html">
 <link rel="import" href="../geo-codec/geo-codec.html">
 
@@ -18,13 +18,14 @@ CSS Custom property | Description | Default
 `--gqi-radius-width` | The width of the radius dropdown. | 4em
 `--gqi-unit-width` | The width of the unit dropdown. | 3em
 `--gqi-dropdown-icon` | The height and width of the dropdown menu icons. | 1em
-`--gqi-checkbox-size` | The height and width of the checkbox. | 1.2em
+`--gqi-checkbox-size` | The height and width of the checkbox. | 1.15em
+`--gqi-container` | Mixin applied to the container. | {layout horizontal center wrap center-justified}
 -->
 <dom-module id="geo-query-input">
   <template strip-whitespace>
     <style>
       :host {
-        display: block;
+        display: inline-block;
 
         --gqi-font: {
           @apply --paper-font-common-base;
@@ -47,6 +48,8 @@ CSS Custom property | Description | Default
         @apply --layout-horizontal;
         @apply --layout-center;
         @apply --layout-wrap;
+        @apply --layout-center-justified;
+        @apply --gqi-container;
       }
 
       .prefix {
@@ -104,50 +107,34 @@ CSS Custom property | Description | Default
         --paper-checkbox-label-spacing: calc(var(--gqi-spacing) / 2);
       }
     </style>
-
-    <geo-location
-      idle="[[!location]]"
-      latitude="{{currentLat}}"
-      longitude="{{currentLng}}"
-      on-geo-error="_onGeolocationError">
-    </geo-location>
-    <geo-codec id="codec" api-key="[[apiKey]]"></geo-codec>
-
     <template is="dom-if" if="[[!noStorage]]" restamp>
-      <!-- FIXME multiple uses in the same page can be accomplished after https://github.com/PolymerElements/app-storage/pull/76 -->
-      <!-- <app-localstorage-document
-        sessionOnly="[[sessionOnly]]"
-        key="[[_keyFor('radius')]]"
-        data="{{radius}}"></app-localstorage-document>
       <app-localstorage-document
-        sessionOnly="[[sessionOnly]]"
-        key="[[_keyFor('unit')]]"
-        data="{{unit}}"></app-localstorage-document>
-      <app-localstorage-document
-        sessionOnly="[[sessionOnly]]"
-        key="[[_keyFor('search')]]"
-        data="{{search}}"></app-localstorage-document>
-      <app-localstorage-document
-        sessionOnly="[[sessionOnly]]"
-        key="[[_keyFor('location')]]"
-        data="{{location}}"></app-localstorage-document> -->
-      <app-localstorage-document
-        session-only="[[sessionOnly]]"
+        session-only="[[sessionStorage]]"
         key="geoQueryInputRadius"
         data="{{radius}}"></app-localstorage-document>
       <app-localstorage-document
-        session-only="[[sessionOnly]]"
+        session-only="[[sessionStorage]]"
         key="geoQueryInputUnit"
         data="{{unit}}"></app-localstorage-document>
       <app-localstorage-document
-        session-only="[[sessionOnly]]"
+        session-only="[[sessionStorage]]"
         key="geoQueryInputSearch"
         data="{{search}}"></app-localstorage-document>
       <app-localstorage-document
-        session-only="[[sessionOnly]]"
+        session-only="[[sessionStorage]]"
         key="geoQueryInputlocation"
         data="{{location}}"></app-localstorage-document>
     </template>
+
+    <geo-location
+      id="geoLocation"
+      idle
+      on-geo-response="_onGeoResponse"
+      on-geo-error="_onGeoError">
+    </geo-location>
+
+    <geo-codec id="codec" api-key="[[apiKey]]"></geo-codec>
+
     <div class="container">
         <span class="prefix">[[prefix]]</span>
         <paper-dropdown-menu class="radius-menu" label="radius" no-animations noink no-label-float>
@@ -177,13 +164,12 @@ CSS Custom property | Description | Default
           label="[[searchLabel]]"
           auto-validate
           no-label-float
-          focused="{{searchInputFocused}}"
+          on-focused-changed="_selectAllOnFocus"
           minlength="[[minSearch]]"
           error-message="[[searchError]]">
         </paper-input>
         <span class="or">[[or]]</span>
         <paper-checkbox id="checkbox" noink checked="{{location}}">[[locationLabel]]</paper-checkbox>
-        <slot name="submit-button"></slot>
     </div>
   </template>
 
@@ -288,9 +274,14 @@ CSS Custom property | Description | Default
         value: false
       },
 
-      _useLocation: {
-        type: Boolean,
-        computed: '_computeUseLocation(search, location)'
+      /**
+       * The state of the input fields.
+       */
+      inputs: {
+        type: Object,
+        readOnly: true,
+        notify: true,
+        observer: '_inputsReady'
       },
 
       /**
@@ -307,21 +298,46 @@ CSS Custom property | Description | Default
        * the page session ends (i.e. when the user has navigated away from
        * the page).
        */
-      sessionOnly: {
+      sessionStorage: {
         type: Boolean,
         value: false
       },
       /**
-       * Whether to allow backup to local/session storage. Overrides sessionOnly when true
+       * Whether to allow backup to local/session storage. Overrides sessionStorage when true
        */
       noStorage: {
         type: Boolean,
         value: false
+      },
+
+
+      /**
+       * Your Google Maps API key, used by `geo-codec`.
+       */
+      apiKey: String,
+      /**
+       * The minimum delay between uses of the geocoder, in milliseconds.
+       */
+      geocodeRate: {
+        type: Number,
+        value: 500
+      },
+      _geocoding: {
+        type: Boolean,
+        value: false
+      },
+      _geocoded: {
+        type: Object,
+        value: null
+      },
+      _currentPos: {
+        type: Object,
+        value: null
       }
     },
     observers: [
-      '_searchInputFocusChanged(searchInputFocused)',
-      '_inputsChanged(radius, unit, search, location, minSearch)'
+      '_inputsChanged(radius, unit, search, location, minSearch)',
+      '_centerChanged(_geocoded, _currentPos, inputs)'
     ],
 
     ready: function() {
@@ -332,41 +348,96 @@ CSS Custom property | Description | Default
     _inputsChanged: function(radius, unit, search, location, minSearch) {
       if (this.prevSearch !== undefined && search != this.prevSearch && location) {
         this.prevSearch = search;
-        location = false;
-      } else {
-        this.prevSearch = search;
+        this.location = false;
+        return;
       }
-      this._setQuery({
+      this.prevSearch = search;
+      this._setInputs({
         radius,
         unit,
         search,
         location,
-        isValid: Boolean(radius && unit && ((search
-          && search.length >= minSearch) || location))
+        valid: Boolean(radius && unit && (location ||
+          (search && search.length >= minSearch)))
       });
-      console.log(this.query);
     },
 
-    _searchInputFocusChanged: function(focused) {
-      if (focused) {
-        this.$.searchInput.$.input.inputElement.select();
+    _selectAllOnFocus: function(e) {
+      if (e.detail.value) {
+        e.target.$.input.inputElement.select();
       }
     },
 
-    /** work around multiple instances in one page sharing the same local storage */
-    _keyFor: function(type) {
-      console.log('key:', this.id + type);
-      return 'geoQueryInput' + this.id + type;
+
+
+    _inputsReady: function(inputs, old) {
+      if (!inputs) return;
+      this.$.geoLocation.idle = !inputs.location;
+      if (inputs.valid) {
+        if (!inputs.location) {
+          if (this._hasStartedGeocoder) {
+            this.debounce('geocoder', () => {
+              this._geocode(inputs.search);
+            }, this.geocodeRate);
+          } else {
+            this._hasStartedGeocoder = true;
+            this._geocode(inputs.search);
+          }
+        }
+      } else {
+        // this.fire('invalid-inputs')
+      }
+    },
+
+    _centerChanged: function(geocoded, currentPos, inputs) {
+      if (!inputs) return;
+      let lat = 0, lng = 0, fromSearch;
+      if (inputs.location && currentPos) {
+        lat = currentPos.latitude;
+        lng = currentPos.longitude;
+        fromSearch = false;
+      } else if (geocoded) {
+        lat = geocoded.lat;
+        lng = geocoded.lng;
+        fromSearch = true;
+      }
+      this._setQuery({
+        inputs,
+        geocoded,
+        currentPos,
+        lat,
+        lng,
+        fromSearch,
+        radiusKm: inputs.unit == 'km' ? inputs.radius : inputs.radius * 1.60934,
+      });
+      // console.log(this.query);
+    },
+
+    _geocode: function(search) {
+      this._geocoding = this.$.codec.geocode(search, (address, lat, lng, place) => {
+        this._geocoding && console.log(address, lat, lng, place);
+        this._geocoded = {
+          search,
+          lat,
+          lng,
+          address,
+          place,
+        };
+        this._geocoding = false;
+      });
+      this._geocoding && console.log('Geocoding:', search);
+    },
+
+    _onGeoResponse: function(e, response) {
+      // console.log('Geolocation response', response);
+      this._currentPos = response;
+    },
+
+    _onGeoError: function(e, error) {
+      // console.warn('Geolocation error', error.error);
+      this.location = false;
+      this.$.searchInput.focus();
     }
-
-
-    /**
-     * Triggered when a user taps the submit button.
-     * @event query-changed
-     * @param {location} boolean Whether the user's current location should be used.
-     * @param {search} string The string to geocode if not using the user's current location.
-     * @param {radiusKm} number The radius in kilometers to search from the center point.
-     */
   });
   </script>
 </dom-module>
