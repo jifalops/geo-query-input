@@ -6,12 +6,13 @@ Specify the center point and search radius for geographical queries.
 ## Installation
 
 ```
-bower install --save geo-query-input
+bower i -S geo-query-input      # Polymer 2.0 hybrid (1.x compatible)
+bower i -S geo-query-input#^0.3 # Polymer 1.x based
 ```
 
 ## Usage
-* Listen for the `query-changed` event and handle changes.
-* Optionally use a submit button instead of the query-changed event (see full demo).
+* Bind to the `query` property.
+* Supply a Google Maps API key (will be optional in the future)
 
 ## Demo
 <!--
@@ -20,26 +21,24 @@ bower install --save geo-query-input
   <template>
     <script src="../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="geo-query-input.html">
-    <next-code-block></next-code-block>
+    <div>
+      <dom-bind>
+        <template is="dom-bind">
+          <next-code-block></next-code-block>
+        </template>
+      </dom-bind>
+    </div>
   </template>
 </custom-element-demo>
 ```
 -->
 
 ```html
-<geo-query-input id="queryInput"></geo-query-input>
-<div id="query"></div>
-<script>
-  var input = document.getElementById('queryInput');
-  var query = document.getElementById('query');
-  input.addEventListener('query-changed', function(e) {
-    var data = e.detail;
-    query.innerHTML = 'Query:'
-      + '<br>useCurrentLocation: ' + data.useCurrentLocation
-      + '<br>search: ' + data.search
-      + '<br>radiusKm: ' + data.radiusKm;
-  });
-</script>
+<geo-query-input query="{{query}}" api-key="AIzaSyAUPOaJubJnaRTPUd_xX8MOA62gRtSlfCc"></geo-query-input>
+<div>lat: [[query.lat]]</div>
+<div>lng: [[query.lng]]</div>
+<div>radiusKm: [[query.radiusKm]]</div>
+<div>fromSearch: [[query.fromSearch]]</div>
 ```
 
 Full demo:
