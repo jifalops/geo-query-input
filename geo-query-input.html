@@ -409,7 +409,7 @@ CSS Custom property | Description | Default
         lng,
         fromSearch,
         radiusKm: inputs.unit == 'km' ? inputs.radius : inputs.radius * 1.60934,
-        valid: Boolean(lat && lng && ((inputs.location && currentPos)
+        valid: Boolean(lat && lng && radiusKm && ((inputs.location && currentPos)
           || (!inputs.location && geocoded && geocoded.search == inputs.search)))
       });
       // console.log(this.query);
