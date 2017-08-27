@@ -39,6 +39,7 @@ bower i -S geo-query-input#^0.3 # Polymer 1.x based
 <div>lng: [[query.lng]]</div>
 <div>radiusKm: [[query.radiusKm]]</div>
 <div>fromSearch: [[query.fromSearch]]</div>
+<div>valid: [[query.valid]]</div>
 ```
 
 Full demo:
