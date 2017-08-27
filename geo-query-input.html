@@ -401,6 +401,7 @@ CSS Custom property | Description | Default
         lng = geocoded.lng;
         fromSearch = true;
       }
+      let radiusKm = inputs.unit == 'km' ? inputs.radius : inputs.radius * 1.60934;
       this._setQuery({
         inputs,
         geocoded,
@@ -408,7 +409,7 @@ CSS Custom property | Description | Default
         lat,
         lng,
         fromSearch,
-        radiusKm: inputs.unit == 'km' ? inputs.radius : inputs.radius * 1.60934,
+        radiusKm,
         valid: Boolean(lat && lng && radiusKm > 0 && ((inputs.location && currentPos)
           || (!inputs.location && geocoded && geocoded.search == inputs.search)))
       });
