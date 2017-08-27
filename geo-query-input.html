@@ -18,7 +18,7 @@ CSS Custom property | Description | Default
 `--gqi-radius-width` | The width of the radius dropdown. | 4em
 `--gqi-unit-width` | The width of the unit dropdown. | 3em
 `--gqi-dropdown-icon` | The height and width of the dropdown menu icons. | 1em
-`--gqi-checkbox-size` | The height and width of the checkbox. | 1.15em
+`--gqi-checkbox-size` | The height and width of the checkbox. | 1.2em
 `--gqi-container` | Mixin applied to the container. | {layout horizontal center wrap center-justified}
 -->
 <dom-module id="geo-query-input">
@@ -409,6 +409,8 @@ CSS Custom property | Description | Default
         lng,
         fromSearch,
         radiusKm: inputs.unit == 'km' ? inputs.radius : inputs.radius * 1.60934,
+        valid: Boolean(lat && lng && ((inputs.location && currentPos)
+          || (!inputs.location && geocoded && geocoded.search == inputs.search)))
       });
       // console.log(this.query);
     },
